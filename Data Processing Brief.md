@@ -89,13 +89,15 @@ No evidence was identified that personal data collected for one purpose is reuse
 
 ## Role Map
 
-| Entity                             | Role                              | Processing activity                         | DPA in place?  |
-| ---------------------------------- | --------------------------------- | ------------------------------------------- | -------------- |
-| DrugDev-AI provider                | Controller                        | Determines purposes and means of processing | N/A            |
-| OpenAI                             | Processor                         | LLM inference and embeddings                | Required       |
-| Cohere                             | Processor                         | Neural reranking                            | Required       |
-| Pinecone                           | Processor                         | Vector database                             | Required       |
-| ClinicalTrials.gov / EMA / openFDA | Independent public data providers | Regulatory information retrieval            | Not applicable |
+| Entity                                   | GDPR Role                                                | Processing activity                         | DPA required?       |
+| ---------------------------------------- | -------------------------------------------------------- | ------------------------------------------- | ------------------- |
+| **Client (DrugDev-AI operator)**         | Controller                                               | Determines purposes and means of processing | N/A                 |
+| **Development team (Project developer)** | Processor during development / Controller if self-hosted | Development, testing and maintenance        | Internal governance |
+| **OpenAI**                               | Processor                                                | Language generation and embeddings          | Yes                 |
+| **Cohere**                               | Processor                                                | Neural reranking                            | Yes                 |
+| **Pinecone**                             | Processor                                                | Vector database                             | Yes                 |
+
+
 
 
 International transfers
@@ -111,21 +113,21 @@ Transfer mechanism: TBD – verify Standard Contractual Clauses (SCCs), adequacy
 
 | Purpose                              | Proposed lawful basis                  | Justification                                         | Legal review           |
 | ------------------------------------ | -------------------------------------- | ----------------------------------------------------- | ---------------------- |
-| Answer user questions                | Article 6(1)(b) – Contract             | Necessary to provide the requested AI service         | No                     |
+| Answer user questions                | Article 6(1)(b) – Contract             | The user requests an answer; processing is necessary to deliver the requested service         | No                     |
 | Personalized learning                | Article 6(1)(b) – Contract             | Required to deliver the requested learning experience | No                     |
 | Conversation memory                  | Article 6(1)(b) – Contract             | Necessary for conversational continuity               | No                     |
-| Usage analytics and token monitoring | Article 6(1)(f) – Legitimate Interests | Supports operation, debugging and cost management     | **TBD – LIA required** |
+| Usage analytics and token monitoring | Article 6(1)(f) – Legitimate Interests | Necessary for service reliability, debugging and cost monitoring. Subject to Legitimate Interests Assessment     | **TBD – LIA required** |
 
 
 ### Legitimate Interests Assessment
 
 Legitimate interest
 
-Monitoring application performance and API costs is necessary to maintain reliable operation.
+The provider has a legitimate interest in monitoring API usage, system performance and operational costs to maintain a secure and reliable service.
 
-Necessity
+Necessity Test
 
-Only aggregated token usage and operational metadata should be retained. No less intrusive mechanism currently provides equivalent operational monitoring.
+Token analytics and operational logs are the least intrusive way to understand service performance and prevent misuse. The same objective cannot reasonably be achieved without collecting limited operational metadata.
 
 Balancing test
 
@@ -133,7 +135,7 @@ The privacy impact is low because analytics relate primarily to technical usage 
 
 Conclusion
 
-TBD – Legal review.
+TBD – Legal review. Article 6(1)(f) is likely appropriate, subject to legal review and documentation of the Legitimate Interests Assessment.
 
 ---
 ---
@@ -155,9 +157,25 @@ The current MVP does not appear to trigger a mandatory DPIA.
 Potential EDPB criteria include:
 
 Innovative technology ✔
+
 Cross-border processing ✔
 
-However, the system does not evaluate people, perform large-scale profiling, process special-category data, or make automated decisions. A DPIA may become appropriate if future versions introduce persistent user accounts, detailed learning analytics, or enterprise monitoring.
+| EDPB Criterion                              | Present?                                             |
+| ------------------------------------------- | ---------------------------------------------------- |
+| Evaluation or scoring                       | ❌                                                    |
+| Automated decision-making with legal effect | ❌                                                    |
+| Systematic monitoring                       | ❌                                                    |
+| Sensitive data                              | ❌                                                    |
+| Large-scale processing                      | ❌                                                    |
+| Matching datasets                           | ❌                                                    |
+| Vulnerable data subjects                    | ❌                                                    |
+| Innovative technology                       | ✔                                                    |
+| International transfers                     | ✔ (not itself an EDPB criterion, but increases risk) |
+
+
+Only one of the EDPB high-risk criteria (innovative technology) is clearly met. Cross-border processing increases compliance obligations but is not itself one of the nine EDPB criteria. On the information available, a mandatory DPIA is therefore unlikely for the current MVP, although this should be reconsidered if persistent user accounts, large-scale deployment, or profiling features are introduced.
+
+The system does not evaluate people, perform large-scale profiling, process special-category data, or make automated decisions. A DPIA may become appropriate if future versions introduce persistent user accounts, detailed learning analytics, or enterprise monitoring.
 
 ### Data subject rights friction
 
@@ -226,6 +244,8 @@ First, prompts sent to external AI providers may contain personal information vo
 Second, international transfers remain dependent on third-party provider compliance and evolving legal requirements.
 
 Third, future product features such as persistent user accounts, adaptive learning analytics, or enterprise deployment could substantially increase GDPR obligations and may require a Data Protection Impact Assessment.
+
+Finally, although the application provides grounded answers with citations, users may still over-rely on AI-generated explanations without consulting the original regulatory documents. Continued emphasis on transparency, user education, and clear disclaimers will help reduce this risk and support responsible use of the system.
 
 ### What this memo is not
 
