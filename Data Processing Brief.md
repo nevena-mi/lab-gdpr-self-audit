@@ -1,27 +1,37 @@
- ## Data Processing Brief
 
-DrugDev-AI is an AI-powered learning and regulatory intelligence assistant for pharmaceutical professionals. It provides three integrated workflows: Ask, Learn, and Monitor, combining Retrieval-Augmented Generation (RAG), structured learning, semantic search, neural reranking, and live monitoring of official regulatory sources.
+## Data Processing Brief
+
+DrugDev-AI is an AI-powered learning and regulatory intelligence assistant for pharmaceutical professionals. It provides three integrated workflows: Ask, Learn, and Monitor, combining grounded question answering, structured learning, and live monitoring of official regulatory sources.
+
+**DrugDev-AI does process personal data.** 
+
+The personal data comes primarily from information that users voluntarily enter while asking questions or using the learning features. This matters for GDPR because some of this information can describe or be linked to an identifiable individual, even though the application is not designed to collect identity documents, health records, or other highly sensitive information.
+
+The regulatory knowledge base and live regulatory sources are different: they consist of publicly available regulatory and scientific information and are not used to build profiles about individual users.
 
 ### What personal data does the system process?
 
-The current MVP processes only limited personal data voluntarily provided by users:
+The current MVP processes limited personal data voluntarily provided by users:
 
-Questions entered in Ask mode
-Learning onboarding information (professional background, career goals, prior experience, preferred learning style, available study time)
-Conversation history within the active session
-Learning progress within the application session
-Optional Monitor search keywords
+- Questions entered in Ask mode
+- Learning onboarding information, including professional background, career goals, prior experience, preferred learning style, and available study time
+- Conversation history within the active session
+- Learning progress within the application session
+- Quiz answers and quiz results
+- Optional Monitor search keywords
 
-| Personal data           | Why it is personal data                                                                                                            |
-| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| User questions          | Questions may contain information that directly or indirectly identifies the user.                                                 |
-| Learning profile        | Background, career goals, experience, learning preferences, and available study time describe an identifiable individual.          |
-| Conversation history    | Previous interactions can be linked to an individual user and therefore constitute personal data.                                  |
-| Learning progress       | Progress through modules reflects an individual's educational activity and therefore relates to an identifiable person.            |
-| Monitor search keywords | Search terms may reveal professional interests or work responsibilities and can therefore be linked to an identifiable individual. |
+| Personal data | Why it is personal data |
+| --- | --- |
+| User questions | Questions may contain information that directly or indirectly identifies the user or describes their professional or personal circumstances. |
+| Learning profile | Background, career goals, experience, learning preferences, and available study time describe an identifiable individual. |
+| Conversation history | Previous interactions can be linked to an individual user and therefore constitute personal data. |
+| Learning progress | Progress through modules reflects an individual's educational activity and therefore relates to an identifiable person. |
+| Quiz answers and results | Quiz activity describes an individual's learning performance and can therefore relate to an identifiable person. |
+| Monitor search keywords | Search terms may reveal professional interests, responsibilities, or areas of work and can therefore become personal data when linked to a user. |
 
+The system does **not intentionally request special-category data under Article 9 GDPR**. However, because Ask mode accepts free-text questions, a user could voluntarily enter information about health, ethnicity, political opinions, religious beliefs, sexual orientation, trade-union membership, or another sensitive topic. Such information would then be processed by the system even though it was not requested. The production design should therefore warn users not to submit unnecessary sensitive personal information.
 
-The regulatory knowledge base consists entirely of publicly available regulatory documents and guidance from organizations such as the EMA, FDA, WHO, ICH and the European Commission. These documents do not contain personal data and therefore are not considered personal data under GDPR.
+The regulatory knowledge base consists of publicly available regulatory documents and guidance from organizations such as the EMA, FDA, WHO, ICH, and the European Commission. These materials are used as regulatory reference content rather than as information about DrugDev-AI users.
 
 ### Where does the data come from?
 
@@ -38,27 +48,46 @@ Improve user experience during the active session
 
 ### Data Controllers and Processors
 
-Personal data is processed by:
+For the current MVP and a future production deployment, the GDPR roles are understood as follows:
 
-DrugDev-AI application
-OpenAI (language generation and embeddings)
-Cohere (neural reranking)
-Pinecone (vector search)
-Official regulatory APIs (Monitor mode)
+- **DrugDev-AI operator / production client — Controller:** determines why user information is processed and how DrugDev-AI is used.
+- **Project developer — Processor when developing or maintaining the system for a separate client:** may process personal data only on the client's documented instructions. If the developer operates DrugDev-AI directly as their own service, the developer would instead act as controller.
+- **OpenAI — Processor:** receives relevant user prompts and learning content for language generation and receives text requiring embeddings where applicable.
+- **Cohere — Processor:** receives the search query and retrieved text required for neural reranking.
+- **Pinecone — Processor:** stores the regulatory vector index and receives query vectors and retrieval requests.
+- **ClinicalTrials.gov, openFDA, and EMA — Public information sources:** Monitor queries these services for public regulatory information. Based on the current design, they are not used to process DrugDev-AI user profiles.
+
+Article 28 Data Processing Agreements would need to be verified or established with vendors acting as processors before production processing of personal data.
 
 ### Storage, Processing and International Transfers
 
-Storage
+#### Storage
 
-The application itself runs locally through Streamlit. Conversation data is intended to exist only for the active session. Regulatory documents are stored in the application's vector database (Pinecone).
+The current MVP runs locally through Streamlit. Conversation history, learning profile information, quiz state, and learning progress are maintained for the active application session and are not intentionally persisted as long-term user records.
 
-Processing
+The regulatory knowledge base is stored in Pinecone as vectorized regulatory text. It is built from public regulatory documents rather than user data.
 
-User prompts are transmitted to OpenAI for language generation and embeddings, Cohere for reranking, and Pinecone for semantic retrieval.
+The current project documentation does not establish the exact production hosting region for every third-party provider. This is therefore a **documented compliance gap to verify before production deployment**, rather than an assumption that all processing occurs either inside or outside the EEA.
 
-International transfers
+#### Processing
 
-Depending on the deployment region and vendor configuration, OpenAI, Cohere, and Pinecone may process data outside the European Economic Area. Before production deployment, the applicable international transfer mechanism (such as Standard Contractual Clauses or participation in the EU–US Data Privacy Framework) should be verified.
+Different data is sent to different services:
+
+- **OpenAI:** receives user questions and relevant retrieved context when generating answers, lessons, quizzes, or other AI-generated content. It also processes text submitted for embeddings.
+- **Cohere:** receives search queries and candidate regulatory text required for reranking.
+- **Pinecone:** processes query vectors against the regulatory knowledge base.
+- **Monitor sources:** ClinicalTrials.gov, openFDA, and EMA receive search terms used to retrieve public regulatory information.
+
+#### International transfers
+
+The exact international-transfer status of OpenAI, Cohere, and Pinecone is **TBD — vendor region and contractual configuration must be verified before production**.
+
+If personal data is transferred outside the EEA, the controller must identify and document the applicable GDPR Chapter V transfer mechanism, such as:
+
+- an adequacy decision, including relevant participation in the EU–US Data Privacy Framework where applicable; or
+- Standard Contractual Clauses (SCCs), together with any required transfer risk assessment and supplementary measures.
+
+The production system should not assume that use of a cloud API automatically provides an adequate transfer mechanism.
 
 ### Does the system make decisions affecting people?
 
@@ -111,31 +140,36 @@ Transfer mechanism: TBD – verify Standard Contractual Clauses (SCCs), adequacy
 
 ## Lawful Basis Assessment
 
-| Purpose                              | Proposed lawful basis                  | Justification                                         | Legal review           |
-| ------------------------------------ | -------------------------------------- | ----------------------------------------------------- | ---------------------- |
-| Answer user questions                | Article 6(1)(b) – Contract             | The user requests an answer; processing is necessary to deliver the requested service         | No                     |
-| Personalized learning                | Article 6(1)(b) – Contract             | Required to deliver the requested learning experience | No                     |
-| Conversation memory                  | Article 6(1)(b) – Contract             | Necessary for conversational continuity               | No                     |
-| Usage analytics and token monitoring | Article 6(1)(f) – Legitimate Interests | Necessary for service reliability, debugging and cost monitoring. Subject to Legitimate Interests Assessment     | **TBD – LIA required** |
-
+| Purpose | Proposed lawful basis | Justification | Flag for legal review? |
+| --- | --- | --- | --- |
+| Answer user questions | Article 6(1)(b) – Contract | The user explicitly requests the Ask service. Processing the submitted question and relevant conversation context is necessary to generate and return the requested answer. | No |
+| Generate personalized learning path | Article 6(1)(b) – Contract, provisionally | The user explicitly requests a personalized learning experience and provides onboarding information for that purpose. Only information necessary to select and adapt the learning path should be processed. | **Yes — confirm contractual necessity** |
+| Generate lessons and quizzes | Article 6(1)(b) – Contract | Generation and assessment are core functions the user requests when choosing Learn mode. Processing the active module, lesson content, and quiz responses is necessary to provide that functionality. | No |
+| Maintain conversation memory within the active session | Article 6(1)(b) – Contract, provisionally | Short-term session memory is used only to maintain continuity in the conversation requested by the user. Persistent or cross-session memory would require a separate assessment. | **Yes — confirm contractual necessity** |
+| Retrieve Monitor results | Article 6(1)(b) – Contract | Search keywords supplied by the user are necessary to execute the Monitor search they explicitly requested. | No |
+| Runtime token and cost monitoring | Article 6(1)(f) – Legitimate Interests | Limited operational metadata is used to monitor API consumption, system reliability, and costs. It is not intended for behavioural profiling or decision-making about users. | **TBD – LIA/legal review required** |
 
 ### Legitimate Interests Assessment
 
-Legitimate interest
+#### Legitimate interest — purpose test
 
-The provider has a legitimate interest in monitoring API usage, system performance and operational costs to maintain a secure and reliable service.
+The provider has a concrete business interest in understanding API consumption, identifying unexpected operational costs, monitoring system reliability, and maintaining a sustainable service. These activities support the operation and security of DrugDev-AI rather than advertising or behavioural profiling.
 
-Necessity Test
+#### Necessity test
 
-Token analytics and operational logs are the least intrusive way to understand service performance and prevent misuse. The same objective cannot reasonably be achieved without collecting limited operational metadata.
+The runtime cost tracker records limited technical information such as timestamp, application mode, model, operation, token counts, search units, and estimated cost. It does not need to store the user's question, generated answer, learning profile, or other content.
 
-Balancing test
+Collecting this limited metadata is a proportionate way to determine how much individual system operations cost and to identify abnormal usage. The same cost-management purpose could not be achieved with equivalent accuracy without recording some request-level operational information.
 
-The privacy impact is low because analytics relate primarily to technical usage rather than profiling individuals. Nevertheless, retention limits and transparency should be documented.
+#### Balancing test
 
-Conclusion
+The impact on users is low because the analytics are limited to technical usage metadata and are not used to evaluate users, infer personal characteristics, advertise to them, or determine access to the service. The data collected should nevertheless be minimized, protected by retention limits, and described in the privacy notice.
 
-TBD – Legal review. Article 6(1)(f) is likely appropriate, subject to legal review and documentation of the Legitimate Interests Assessment.
+If analytics later expand to behavioural analytics, user-level profiling, product experimentation, or persistent tracking across sessions, this balancing assessment would no longer be sufficient and the lawful basis should be reassessed.
+
+#### Conclusion
+
+Article 6(1)(f) appears to be a plausible lawful basis for the narrowly defined runtime cost and operational analytics described above. A formal LIA and legal review should be completed before production deployment.
 
 ---
 ---
@@ -145,6 +179,7 @@ TBD – Legal review. Article 6(1)(f) is likely appropriate, subject to legal re
 ### Special-category data (Article 9)
 
 DrugDev-AI is not intended to process special-category data. Users may voluntarily enter health or employment-related information in free-text prompts, but the application neither requests nor analyses such information for profiling. No Article 9 processing is intentionally performed.
+Because Ask mode accepts unrestricted free-text input, incidental Article 9 data cannot be fully prevented. A user could, for example, include information about a medical condition when asking a regulatory question. The production interface should therefore inform users not to submit unnecessary sensitive personal data, and such information should not be reused for profiling, analytics, or unrelated purposes.
 
 ### Automated decision-making (Article 22)
 
@@ -152,30 +187,27 @@ The system does not make automated decisions with legal or similarly significant
 
 ### DPIA trigger
 
-The current MVP does not appear to trigger a mandatory DPIA.
+The current MVP does not appear to trigger a mandatory DPIA based on the information available.
 
-Potential EDPB criteria include:
+The EDPB criteria can be applied as follows:
 
-Innovative technology ✔
+| EDPB Criterion | Present? | Reason |
+| --- | --- | --- |
+| Evaluation or scoring of people | ❌ | DrugDev-AI does not score or rank users as individuals. Quiz evaluation measures learning responses but does not produce a consequential personal assessment. |
+| Automated decision-making with legal or similarly significant effects | ❌ | The system provides information and learning recommendations only. It does not approve, reject, or determine access to employment, healthcare, credit, education, or another significant service. |
+| Systematic monitoring | ❌ | Users are not continuously monitored or tracked across contexts in the current MVP. |
+| Special-category or highly personal data | ❌ / potential incidental occurrence | DrugDev-AI does not request Article 9 data, although users could voluntarily include such information in free-text prompts. |
+| Large-scale processing | ❌ | The MVP does not currently operate at a scale that indicates large-scale processing of personal data. |
+| Matching or combining datasets | ❌ | The system does not combine separate personal datasets about users. |
+| Data concerning vulnerable data subjects | ❌ | The intended users are pharmaceutical professionals, researchers, and learners; the system is not specifically targeted at vulnerable groups. |
+| Innovative use of technology | ✔ | The application combines generative AI, retrieval, reranking, and personalized learning. |
+| Processing that prevents individuals exercising a right or using a service or contract | ❌ | DrugDev-AI does not determine access to a service or prevent users from exercising their rights. |
 
-Cross-border processing ✔
+Only **one criterion — innovative use of technology — is clearly present** for the current MVP. Incidental entry of special-category data remains a possible risk, but it is neither requested nor part of the intended processing purpose.
 
-| EDPB Criterion                              | Present?                                             |
-| ------------------------------------------- | ---------------------------------------------------- |
-| Evaluation or scoring                       | ❌                                                    |
-| Automated decision-making with legal effect | ❌                                                    |
-| Systematic monitoring                       | ❌                                                    |
-| Sensitive data                              | ❌                                                    |
-| Large-scale processing                      | ❌                                                    |
-| Matching datasets                           | ❌                                                    |
-| Vulnerable data subjects                    | ❌                                                    |
-| Innovative technology                       | ✔                                                    |
-| International transfers                     | ✔ (not itself an EDPB criterion, but increases risk) |
+International transfers to third-party AI vendors are a separate GDPR compliance consideration. They increase overall privacy risk but are **not one of the nine EDPB DPIA criteria** and should therefore not be counted toward the two-criterion DPIA threshold.
 
-
-Only one of the EDPB high-risk criteria (innovative technology) is clearly met. Cross-border processing increases compliance obligations but is not itself one of the nine EDPB criteria. On the information available, a mandatory DPIA is therefore unlikely for the current MVP, although this should be reconsidered if persistent user accounts, large-scale deployment, or profiling features are introduced.
-
-The system does not evaluate people, perform large-scale profiling, process special-category data, or make automated decisions. A DPIA may become appropriate if future versions introduce persistent user accounts, detailed learning analytics, or enterprise monitoring.
+On the current facts, a mandatory DPIA is therefore unlikely. This conclusion should be reassessed if DrugDev-AI introduces persistent user profiles, behavioural or learning analytics, large-scale deployment, systematic monitoring, profiling, or processing of special-category data.
 
 ### Data subject rights friction
 
