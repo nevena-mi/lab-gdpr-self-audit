@@ -9,6 +9,7 @@ The personal data comes primarily from information that users voluntarily enter 
 
 The regulatory knowledge base and live regulatory sources are different: they consist of publicly available regulatory and scientific information and are not used to build profiles about individual users.
 
+
 ### What personal data does the system process?
 
 The current MVP processes limited personal data voluntarily provided by users:
@@ -94,6 +95,55 @@ The production system should not assume that use of a cloud API automatically pr
 No.
 
 DrugDev-AI does not score people, rank individuals, approve or reject requests, or make automated decisions. It provides educational explanations, grounded answers, learning recommendations and regulatory summaries. Users remain fully responsible for interpreting information and making any professional decisions.
+
+---
+---
+
+## CFU Checkpoints
+
+### 1. Recognize
+
+DrugDev-AI processes personal data because users may provide information about themselves through Ask and Learn mode, including professional background, career goals, learning preferences, conversation history, quiz responses, and search interests.
+
+**Special-category data:** The system does not intentionally request or infer Article 9 special-category data as part of its normal workflow. However, because Ask mode accepts unrestricted free-text input, users could voluntarily include sensitive information such as health information, political opinions, religious beliefs, sexual orientation, ethnicity, or trade-union membership. The system is not designed to infer these characteristics from its outputs, and such information should not be reused for profiling or unrelated analytics.
+
+**EU-border transfers:** Yes, personal data may cross the EU/EEA border. User prompts and related content may be processed by OpenAI, Cohere, and Pinecone. The exact processing regions and transfer mechanisms are not yet documented for the current production configuration and must therefore be verified before deployment. Where data is transferred outside the EEA, an appropriate Chapter V GDPR mechanism such as an adequacy decision or Standard Contractual Clauses must be documented.
+
+### 2. Apply
+
+The audit maps each personal-data category to its source, processing purpose, retention period, controller or processor, lawful basis, and possible international transfer. Core user-requested functionality is provisionally assessed under Article 6(1)(b), while narrowly defined operational cost and token analytics are assessed under Article 6(1)(f), subject to a documented Legitimate Interests Assessment.
+
+The current MVP does not perform automated decision-making with legal or similarly significant effects under Article 22. It also does not intentionally process special-category data, perform large-scale profiling, or systematically monitor users.
+
+For the DPIA assessment, all nine EDPB criteria were reviewed. Only **innovative use of technology** is clearly present in the current MVP. One criterion alone does not normally meet the EDPB's indicative threshold of two or more criteria for a likely high-risk processing operation. A mandatory DPIA is therefore not indicated on the current facts, although the conclusion should be revisited if the system later introduces persistent profiles, systematic monitoring, large-scale processing, behavioural analytics, or special-category data.
+
+### 3. Integrate
+
+The client recommendation is **proceed with conditions**. Before production deployment, the operator should:
+
+1. verify and establish Article 28 DPAs and international-transfer safeguards with relevant vendors;
+2. publish a privacy notice explaining user-data processing, third-party recipients, retention, and data-subject rights; and
+3. formalise retention, operational logging, security, and incident-response governance.
+
+Residual risks include users voluntarily submitting sensitive information in free-text prompts, dependence on third-party international-transfer arrangements, and increased GDPR obligations if future versions introduce persistent profiling or large-scale learning analytics.
+
+### 4. Verify
+
+Using only the project's current documentation, full GDPR compliance could not yet be demonstrated to a regulator.
+
+The main missing accountability evidence is:
+
+- Privacy Notice
+- Article 28 DPAs with relevant processors
+- Records of Processing Activities (RoPA)
+- documented retention schedule
+- completed Legitimate Interests Assessment for operational analytics
+- verified international-transfer mechanisms
+- production access-control documentation
+- documented subject-rights procedure
+- incident-response and breach-notification procedure
+
+The technical design currently limits persistent personal-data storage, but production compliance would require these organisational and contractual controls to be documented and demonstrable.
 
 ---
 ---
@@ -207,7 +257,12 @@ Only **one criterion — innovative use of technology — is clearly present** f
 
 International transfers to third-party AI vendors are a separate GDPR compliance consideration. They increase overall privacy risk but are **not one of the nine EDPB DPIA criteria** and should therefore not be counted toward the two-criterion DPIA threshold.
 
-On the current facts, a mandatory DPIA is therefore unlikely. This conclusion should be reassessed if DrugDev-AI introduces persistent user profiles, behavioural or learning analytics, large-scale deployment, systematic monitoring, profiling, or processing of special-category data.
+Only **one of the nine EDPB criteria — innovative use of technology — is clearly present** for the current MVP. The remaining criteria are not established on the current facts. The EDPB uses the presence of two or more criteria as an indicator that processing is more likely to present high risk, although this is not an automatic legal rule. Because DrugDev-AI currently meets only one clear criterion, the present processing does not appear to cross that indicative threshold.
+
+International transfers to third-party providers remain an important GDPR risk and require separate Chapter V safeguards, but international transfer is not itself one of the nine EDPB DPIA criteria and is therefore not counted toward that threshold.
+
+A mandatory DPIA is therefore unlikely for the current MVP. This conclusion should be reassessed if future versions introduce persistent user profiles, systematic monitoring, large-scale processing, behavioural or learning analytics, profiling, or intentional processing of special-category data.
+
 
 ### Data subject rights friction
 
