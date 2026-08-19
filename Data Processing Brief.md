@@ -12,6 +12,15 @@ Conversation history within the active session
 Learning progress within the application session
 Optional Monitor search keywords
 
+| Personal data           | Why it is personal data                                                                                                            |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| User questions          | Questions may contain information that directly or indirectly identifies the user.                                                 |
+| Learning profile        | Background, career goals, experience, learning preferences, and available study time describe an identifiable individual.          |
+| Conversation history    | Previous interactions can be linked to an individual user and therefore constitute personal data.                                  |
+| Learning progress       | Progress through modules reflects an individual's educational activity and therefore relates to an identifiable person.            |
+| Monitor search keywords | Search terms may reveal professional interests or work responsibilities and can therefore be linked to an identifiable individual. |
+
+
 The regulatory knowledge base consists entirely of publicly available regulatory documents and guidance from organizations such as the EMA, FDA, WHO, ICH and the European Commission. These documents do not contain personal data and therefore are not considered personal data under GDPR.
 
 ### Where does the data come from?
@@ -26,9 +35,10 @@ Generate lessons and quizzes
 Maintain conversation context
 Retrieve relevant regulatory updates
 Improve user experience during the active session
-Who processes the data?
 
-### Personal data is processed by:
+### Data Controllers and Processors
+
+Personal data is processed by:
 
 DrugDev-AI application
 OpenAI (language generation and embeddings)
@@ -36,9 +46,19 @@ Cohere (neural reranking)
 Pinecone (vector search)
 Official regulatory APIs (Monitor mode)
 
-### Where is data stored and processed?
+### Storage, Processing and International Transfers
 
-The application runs locally through Streamlit. User prompts are transmitted to OpenAI and Cohere APIs. Semantic vectors are stored in Pinecone. Depending on vendor configuration, processing may occur outside the European Economic Area, making international transfers possible.
+Storage
+
+The application itself runs locally through Streamlit. Conversation data is intended to exist only for the active session. Regulatory documents are stored in the application's vector database (Pinecone).
+
+Processing
+
+User prompts are transmitted to OpenAI for language generation and embeddings, Cohere for reranking, and Pinecone for semantic retrieval.
+
+International transfers
+
+Depending on the deployment region and vendor configuration, OpenAI, Cohere, and Pinecone may process data outside the European Economic Area. Before production deployment, the applicable international transfer mechanism (such as Standard Contractual Clauses or participation in the EU–US Data Privacy Framework) should be verified.
 
 ### Does the system make decisions affecting people?
 
